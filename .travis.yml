@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: qiflUIAbCOfaWrjziuptrneyCSb+SWYhwlNjWd34y+09P90jNfQuCMWRQ3wPWzCoVtuYMPlL2mzDPsWFag/SAFQ4m3e49jlZ88km7Wyg058o1MFmvctg1yAHVW7+JqNnExGae6USdskded71MCGI8tnOtStvTeH9TgS4bFanfxAUCpaHzAPT/KxWEJrg9PF0r39SispScUXxOC9AN/yUdK6IE+YBOrQVeQ2xjEZ1asJ1IeWvYwjyW0O1pGVwNHl/voPOd9r/A0bRkfPhCvrrWhyM2SPd2G11Bd17g5DOCfAgOD5DjegCrBmv3WSugL9paZ24ommoeb/HJLf8oWo1SriSpgDYzjHMnqXAKaBVzceSHLxgYrbk0Z6XRwgGQ8E+lU65R1t/m4kV8BURtu8t77Fj1kSnCsxLvAdA89JhP0RYRtgaXLn9uqohX3AhDid/CBKg50NBADSNBfROfps+5L5w5QuKc39r7J61Iz59z8SBTH9htVsrJ5yKAsmZScugSutUGcQ5ajKHwmFnrqOr7rbaPAtEBDwfQSDMvdN3MWzSVGDmqPVbvUgb9zizJ5cF4Q/gEGVywtGirzU7fElVpdLXGamx3gBOLbINPhz9tL85xRa3vFVG+obZYbX3zLDn9vgYihZXtBvQyM5AOzDGZKvQi0Qfl8/k/HlxWNjxfzw=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Memoirs-of-the-Courts-of-Louis-XV-and-XVI.---Volume-2--13-Being-secret-memoirs-of-Madame-Du-Ha__3877
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
